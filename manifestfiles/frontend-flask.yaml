@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-webapp-mysql
+  namespace: final
+  labels:
+    app: example-app
+    name: simple-webapp-mysql
+  annotations:
+    # Container Image Automated Updates
+    flux.weave.works/automated: "true"
+    flux.weave.works/tag.simple-webapp-mysql: glob:*
+    # do not apply this manifest on the cluster
+    #flux.weave.works/ignore: "true"
+spec:
+  selector:
+    matchLabels:
+      name: simple-webapp-mysql
+      component: frontend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: simple-webapp-mysql
+        component: frontend
+    spec:
+      serviceAccountName: clo835
+      containers:
+      - name: simple-webapp-mysql
+        image: 881740801742.dkr.ecr.us-east-1.amazonaws.com/simple-webapp:latest
+        resources:
+          requests:
+            cpu: 200m
+        ports:
+        - containerPort: 81
+        envFrom:
+          - secretRef:
+              name: project-secret
+          - configMapRef:
+              name: project-config
+
+
